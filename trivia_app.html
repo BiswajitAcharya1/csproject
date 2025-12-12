@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>trivia mastery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #1a1a2e;
+            color: #ffffff;
+            padding: 10px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #16213e;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #0f3460;
+            padding-bottom: 15px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #00d4ff;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 5px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 18px;
+            color: #00d97f;
+            font-weight: bold;
+        }
+
+        .timer-display {
+            text-align: center;
+            font-size: 24px;
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .topic-selection {
+            display: grid;
+            gap: 15px;
+        }
+
+        .topic-btn {
+            padding: 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #ffffff;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .topic-btn:hover {
+            opacity: 0.8;
+        }
+
+        .topic-btn:active {
+            opacity: 0.6;
+        }
+
+        .btn-science {
+            background-color: #ff6b6b;
+        }
+
+        .btn-history {
+            background-color: #4ecdc4;
+        }
+
+        .btn-tech {
+            background-color: #45b7d1;
+        }
+
+        .question-container {
+            background-color: #0f3460;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .progress-bar {
+            background-color: #2a4158;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #00d97f;
+            transition: width 0.3s;
+        }
+
+        .answers {
+            display: grid;
+            gap: 10px;
+        }
+
+        .answer-btn {
+            padding: 15px;
+            font-size: 14px;
+            border: 2px solid #3a5a7a;
+            background-color: #1a3a52;
+            color: #ffffff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .answer-btn:hover {
+            background-color: #2a4a62;
+            border-color: #00d4ff;
+        }
+
+        .answer-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .answer-btn.correct {
+            background-color: #00d97f;
+            border-color: #00d97f;
+            color: #000;
+        }
+
+        .answer-btn.incorrect {
+            background-color: #ff6b6b;
+            border-color: #ff6b6b;
+            color: #fff;
+        }
+
+        .feedback {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            display: none;
+        }
+
+        .feedback.correct {
+            background-color: #00d97f;
+            color: #000;
+            display: block;
+        }
+
+        .feedback.incorrect {
+            background-color: #ff6b6b;
+            color: #fff;
+            display: block;
+        }
+
+        .next-btn {
+            width: 100%;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 16px;
+            background-color: #00d97f;
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: none;
+        }
+
+        .next-btn.show {
+            display: block;
+        }
+
+        .next-btn:hover {
+            opacity: 0.8;
+        }
+
+        .results-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .results-title {
+            font-size: 24px;
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+
+        .result-stat {
+            background-color: #0f3460;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+
+        .result-stat-label {
+            color: #aaa;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .result-stat-value {
+            font-size: 32px;
+            color: #00d97f;
+            font-weight: bold;
+        }
+
+        .rank-display {
+            background-color: #ffa500;
+            color: #000;
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .scoreboard-container {
+            background-color: #0f3460;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .scoreboard-title {
+            color: #00d4ff;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .scoreboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #2a4158;
+            font-size: 14px;
+        }
+
+        .scoreboard-entry:last-child {
+            border-bottom: none;
+        }
+
+        .btn-group {
+            display: grid;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            padding: 15px;
+            font-size: 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: #fff;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .action-btn:hover {
+            opacity: 0.8;
+        }
+
+        .btn-restart {
+            background-color: #4ecdc4;
+        }
+
+        .btn-scoreboard {
+            background-color: #a29bfe;
+        }
+
+        .lockdown-warning {
+            background-color: #ff6b6b;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .no-exit-message {
+            color: #ff6b6b;
+            font-size: 12px;
+            text-align: center;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- header -->
+        <div class="header">
+            <h1>trivia mastery</h1>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-label">score</div>
+                    <div class="stat-value" id="globalScore">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">correct</div>
+                    <div class="stat-value" id="globalCorrect">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">accuracy</div>
+                    <div class="stat-value" id="globalAccuracy">0%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- topic selection screen -->
+        <div class="screen active" id="topicScreen">
+            <h2 style="margin-bottom: 20px; color: #00d4ff; text-align: center;">select a topic to begin</h2>
+            <div class="topic-selection">
+                <button class="topic-btn btn-science" onclick="startQuiz('science')">science - 16 questions</button>
+                <button class="topic-btn btn-history" onclick="startQuiz('history')">history - 16 questions</button>
+                <button class="topic-btn btn-tech" onclick="startQuiz('technology')">technology - 16 questions</button>
+            </div>
+            <div class="scoreboard-container" style="margin-top: 30px;">
+                <div class="scoreboard-title">global leaderboard</div>
+                <div id="leaderboardDisplay"></div>
+            </div>
+        </div>
+
+        <!-- quiz screen -->
+        <div class="screen" id="quizScreen">
+            <div class="lockdown-warning" id="lockdownWarning" style="display: none;">
+                lockdown mode active - no navigation allowed
+            </div>
+            
+            <div class="timer-display">
+                time left: <span id="timerValue">30</span>s
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div style="text-align: center; color: #aaa; margin-bottom: 15px; font-size: 12px;">
+                question <span id="questionNumber">1</span> of 16
+            </div>
+
+            <div class="question-container">
+                <div class="question-text" id="questionText"></div>
+
+                <div class="answers" id="answersContainer"></div>
+
+                <div class="feedback" id="feedback"></div>
+            </div>
+
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">next question</button>
+        </div>
+
+        <!-- results screen -->
+        <div class="screen" id="resultsScreen">
+            <div class="results-container">
+                <div class="results-title">quiz complete</div>
+
+                <div class="result-stat">
+                    <div class="result-stat-label">final score</div>
+                    <div class="result-stat-value"><span id="finalScore">0</span>/16</div>
+                </div>
+
+                <div class="result-stat">
+                    <div class="result-stat-label">percentage</div>
+                    <div class="result-stat-value"><span id="finalPercentage">0</span>%</div>
+                </div>
+
+                <div class="rank-display" id="rankDisplay">rank: beginner</div>
+
+                <div class="scoreboard-container">
+                    <div class="scoreboard-title">leaderboard - <span id="finalTopic"></span></div>
+                    <div id="finalLeaderboard"></div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="action-btn btn-restart" onclick="restartQuiz()">play again</button>
+                    <button class="action-btn btn-scoreboard" onclick="backToTopics()">back to topics</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // questions database
+        const questions = {
+            science: [
+                {
+                    question: "what is the powerhouse of the cell?",
+                    answers: ["mitochondria", "nucleus", "ribosome", "chloroplast"],
+                    correct: 0
+                },
+                {
+                    question: "how many bones are in the adult human body?",
+                    answers: ["206", "186", "256", "276"],
+                    correct: 0
+                },
+                {
+                    question: "what gas do plants absorb from the atmsophere?",
+                    answers: ["carbon dioxide", "oxygen", "nitrogen", "hydrogen"],
+                    correct: 0
+                },
+                {
+                    question: "what is the speed of light?",
+                    answers: ["300,000 km/s", "150,000 km/s", "450,000 km/s", "200,000 km/s"],
+                    correct: 0
+                },
+                {
+                    question: "what is the largest organ in the human body?",
+                    answers: ["skin", "heart", "brain", "liver"],
+                    correct: 0
+                },
+                {
+                    question: "what is the chemical symbol for gold?",
+                    answers: ["au", "gd", "ag", "go"],
+                    correct: 0
+                },
+                {
+                    question: "how many chromosomes do humans have?",
+                    answers: ["46", "32", "48", "44"],
+                    correct: 0
+                },
+                {
+                    question: "what is the process by which plants make food?",
+                    answers: ["photosynthesis", "respiration", "fermentation", "digestion"],
+                    correct: 0
+                },
+                {
+                    question: "what is the smallest prime number?",
+                    answers: ["2", "1", "3", "5"],
+                    correct: 0
+                },
+                {
+                    question: "at what temperature does water boil in celsius?",
+                    answers: ["100", "0", "50", "212"],
+                    correct: 0
+                },
+                {
+                    question: "what is the study of rocks called?",
+                    answers: ["geology", "biology", "astronomy", "botany"],
+                    correct: 0
+                },
+                {
+                    question: "how fast does sound travel in air?",
+                    answers: ["343 m/s", "200 m/s", "500 m/s", "100 m/s"],
+                    correct: 0
+                },
+                {
+                    question: "what type of animal is a seahorse?",
+                    answers: ["fish", "mammal", "reptile", "amphibian"],
+                    correct: 0
+                },
+                {
+                    question: "what is the most abundant gas in earths atmosphere?",
+                    answers: ["nitrogen", "oxygen", "argon", "carbon dioxide"],
+                    correct: 0
+                },
+                {
+                    question: "how many layers does the earth have?",
+                    answers: ["3", "2", "4", "5"],
+                    correct: 0
+                },
+                {
+                    question: "what is the smallest unit of life?",
+                    answers: ["cell", "atom", "molecule", "organ"],
+                    correct: 0
+                }
+            ],
+            history: [
+                {
+                    question: "in what year did world war 2 end?",
+                    answers: ["1945", "1944", "1946", "1943"],
+                    correct: 0
+                },
+                {
+                    question: "who was the first president of the usa?",
+                    answers: ["george washington", "thomas jefferson", "john adams", "benjamin franklin"],
+                    correct: 0
+                },
+                {
+                    question: "what year did the titanic sink?",
+                    answers: ["1912", "1913", "1911", "1910"],
+                    correct: 0
+                },
+                {
+                    question: "who invented the printing press?",
+                    answers: ["johannes gutenberg", "leonardo da vinci", "galileo galilei", "isaac newton"],
+                    correct: 0
+                },
+                {
+                    question: "in what year did the american revolution start?",
+                    answers: ["1775", "1776", "1774", "1777"],
+                    correct: 0
+                },
+                {
+                    question: "who was the first emperor of rome?",
+                    answers: ["augustus", "julius caesar", "nero", "tiberius"],
+                    correct: 0
+                },
+                {
+                    question: "what year did the berlin wall fall?",
+                    answers: ["1989", "1988", "1990", "1987"],
+                    correct: 0
+                },
+                {
+                    question: "who wrote the declaration of independance?",
+                    answers: ["thomas jefferson", "benjamin franklin", "john adams", "james madison"],
+                    correct: 0
+                },
+                {
+                    question: "in what year did columbus reach america?",
+                    answers: ["1492", "1491", "1493", "1490"],
+                    correct: 0
+                },
+                {
+                    question: "what year did the french revolution begin?",
+                    answers: ["1789", "1788", "1790", "1787"],
+                    correct: 0
+                },
+                {
+                    question: "in what year did india gain independance?",
+                    answers: ["1947", "1945", "1946", "1948"],
+                    correct: 0
+                },
+                {
+                    question: "what year did the magna carta get signed?",
+                    answers: ["1215", "1216", "1214", "1217"],
+                    correct: 0
+                },
+                {
+                    question: "what year did world war 1 start?",
+                    answers: ["1914", "1913", "1915", "1912"],
+                    correct: 0
+                },
+                {
+                    question: "in what year did the cold war end?",
+                    answers: ["1991", "1989", "1990", "1992"],
+                    correct: 0
+                },
+                {
+                    question: "who was the leader of the soviet union during wwii?",
+                    answers: ["joseph stalin", "vladimir lenin", "leon trotsky", "nikita khrushchev"],
+                    correct: 0
+                },
+                {
+                    question: "in what year was the internet created?",
+                    answers: ["1969", "1970", "1968", "1971"],
+                    correct: 0
+                }
+            ],
+            technology: [
+                {
+                    question: "who is known as the father of computers?",
+                    answers: ["charles babbage", "alan turing", "john von neumann", "grace hopper"],
+                    correct: 0
+                },
+                {
+                    question: "what year was the first iphone released?",
+                    answers: ["2007", "2006", "2008", "2005"],
+                    correct: 0
+                },
+                {
+                    question: "what does cpu stand for?",
+                    answers: ["central processing unit", "central process unit", "computer processing unit", "core processing unit"],
+                    correct: 0
+                },
+                {
+                    question: "who founded microsoft?",
+                    answers: ["bill gates", "steve ballmer", "paul allen", "steve jobs"],
+                    correct: 0
+                },
+                {
+                    question: "what is the most used programming language?",
+                    answers: ["python", "java", "c++", "javascript"],
+                    correct: 0
+                },
+                {
+                    question: "what year was the first website created?",
+                    answers: ["1991", "1990", "1992", "1989"],
+                    correct: 0
+                },
+                {
+                    question: "who invented the world wide web?",
+                    answers: ["tim berners-lee", "bob kahn", "vint cerf", "jon postel"],
+                    correct: 0
+                },
+                {
+                    question: "what does ai stand for?",
+                    answers: ["artificial intelligence", "advanced intelligence", "applied intelligence", "augmented intelligence"],
+                    correct: 0
+                },
+                {
+                    question: "what year was android os lauched?",
+                    answers: ["2008", "2007", "2009", "2006"],
+                    correct: 0
+                },
+                {
+                    question: "who founded apple?",
+                    answers: ["steve jobs", "steve wozniak", "ronald wayne", "bill gates"],
+                    correct: 0
+                },
+                {
+                    question: "what does gpu stand for?",
+                    answers: ["graphics processing unit", "general purpose unit", "graphical processing utility", "graphics processor utility"],
+                    correct: 0
+                },
+                {
+                    question: "what does html stand for?",
+                    answers: ["hypertext markup language", "high tech markup language", "hyper transfer markup language", "home tool markup language"],
+                    correct: 0
+                },
+                {
+                    question: "who founded google?",
+                    answers: ["larry page and sergey brin", "eric schmidt", "sundar pichai", "marissa mayer"],
+                    correct: 0
+                },
+                {
+                    question: "what is the most popular video streaming platform?",
+                    answers: ["youtube", "netflix", "twitch", "disney+"],
+                    correct: 0
+                },
+                {
+                    question: "who invented javascript?",
+                    answers: ["brendan eich", "kyle simpson", "douglas crockford", "ryan dahl"],
+                    correct: 0
+                },
+                {
+                    question: "what does api stand for?",
+                    answers: ["application programming interface", "advanced programming interface", "application process interface", "automated programming interface"],
+                    correct: 0
+                }
+            ]
+        };
+
+        // global state
+        let currentTopic = null;
+        let currentQuestion = 0;
+        let score = 0;
+        let globalScores = {
+            science: 0,
+            history: 0,
+            technology: 0
+        };
+        let globalCorrectAnswers = 0;
+        let globalTotalAnswers = 0;
+        let answerSelected = false;
+        let timerInterval = null;
+        let timeLeft = 30;
+        let lockdownMode = false;
+
+        function startQuiz(topic) {
+            currentTopic = topic;
+            currentQuestion = 0;
+            score = 0;
+            answerSelected = false;
+            lockdownMode = true;
+
+            document.getElementById('topicScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+            document.getElementById('lockdownWarning').style.display = 'block';
+
+            loadQuestion();
+            startTimer();
+        }
+
+        function loadQuestion() {
+            if (currentQuestion >= 16) {
+                endQuiz();
+                return;
+            }
+
+            const question = questions[currentTopic][currentQuestion];
+            document.getElementById('questionNumber').textContent = currentQuestion + 1;
+            document.getElementById('questionText').textContent = question.question;
+
+            const container = document.getElementById('answersContainer');
+            container.innerHTML = '';
+
+            question.answers.forEach((answer, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'answer-btn';
+                btn.textContent = answer;
+                btn.onclick = () => selectAnswer(index);
+                btn.disabled = answerSelected;
+                container.appendChild(btn);
+            });
+
+            answerSelected = false;
+            document.getElementById('nextBtn').classList.remove('show');
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('feedback').textContent = '';
+
+            updateProgressBar();
+        }
+
+        function selectAnswer(index) {
+            if (answerSelected) return;
+
+            answerSelected = true;
+            const question = questions[currentTopic][currentQuestion];
+            const buttons = document.querySelectorAll('.answer-btn');
+            const feedback = document.getElementById('feedback');
+
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === question.correct) {
+                    btn.classList.add('correct');
+                } else if (idx === index && idx !== question.correct) {
+                    btn.classList.add('incorrect');
+                }
+            });
+
+            if (index === question.correct) {
+                score++;
+                globalCorrectAnswers++;
+                feedback.className = 'feedback correct';
+                feedback.textContent = 'correct answer!';
+            } else {
+                feedback.className = 'feedback incorrect';
+                feedback.textContent = 'wrong answer!';
+            }
+
+            globalTotalAnswers++;
+            updateGlobalStats();
+
+            document.getElementById('nextBtn').classList.add('show');
+            stopTimer();
+        }
+
+        function nextQuestion() {
+            currentQuestion++;
+            if (currentQuestion < 16) {
+                loadQuestion();
+                startTimer();
+            } else {
+                endQuiz();
+            }
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById('timerValue').textContent = timeLeft;
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timerValue').textContent = timeLeft;
+
+                if (timeLeft <= 0) {
+                    stopTimer();
+                    if (!answerSelected) {
+                        answerSelected = true;
+                        const buttons = document.querySelectorAll('.answer-btn');
+                        buttons.forEach(btn => btn.disabled = true);
+
+                        document.getElementById('feedback').className = 'feedback incorrect';
+                        document.getElementById('feedback').textContent = 'time is up!';
+                        document.getElementById('nextBtn').classList.add('show');
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestion) / 16) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function updateGlobalStats() {
+            document.getElementById('globalScore').textContent = globalCorrectAnswers;
+            document.getElementById('globalCorrect').textContent = globalCorrectAnswers;
+
+            if (globalTotalAnswers > 0) {
+                const accuracy = Math.round((globalCorrectAnswers / globalTotalAnswers) * 100);
+                document.getElementById('globalAccuracy').textContent = accuracy + '%';
+            }
+        }
+
+        function endQuiz() {
+            stopTimer();
+
+            globalScores[currentTopic] = score;
+            const percentage = Math.round((score / 16) * 100);
+
+            document.getElementById('quizScreen').classList.remove('active');
+            document.getElementById('resultsScreen').classList.add('active');
+
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalPercentage').textContent = percentage;
+            document.getElementById('finalTopic').textContent = currentTopic;
+
+            let rank = 'beginner';
+            if (percentage >= 90) rank = 'master';
+            else if (percentage >= 75) rank = 'expert';
+            else if (percentage >= 60) rank = 'intermediate';
+
+            document.getElementById('rankDisplay').textContent = 'rank: ' + rank;
+
+            updateFinalLeaderboard();
+        }
+
+        function updateFinalLeaderboard() {
+            const scores = [];
+            scores.push({ topic: 'science', score: globalScores.science });
+            scores.push({ topic: 'history', score: globalScores.history });
+            scores.push({ topic: 'technology', score: globalScores.technology });
+
+            scores.sort((a, b) => b.score - a.score);
+
+            let html = '';
+            scores.forEach((item, index) => {
+                html += '<div class="scoreboard-entry">';
+                html += '<span>' + (index + 1) + '. ' + item.topic + '</span>';
+                html += '<span>' + item.score + '/16</span>';
+                html += '</div>';
+            });
+
+            document.getElementById('finalLeaderboard').innerHTML = html;
+
+            const topicScores = [];
+            topicScores.push({ topic: 'science', score: globalScores.science });
+            topicScores.push({ topic: 'history', score: globalScores.history });
+            topicScores.push({ topic: 'technology', score: globalScores.technology });
+            topicScores.sort((a, b) => b.score - a.score);
+
+            let leaderboardHtml = '';
+            topicScores.forEach((item, index) => {
+                leaderboardHtml += '<div class="scoreboard-entry">';
+                leaderboardHtml += '<span>' + (index + 1) + '. ' + item.topic + '</span>';
+                leaderboardHtml += '<span>' + item.score + '/16</span>';
+                leaderboardHtml += '</div>';
+            });
+
+            const initial = document.getElementById('leaderboardDisplay');
+            if (initial) {
+                initial.innerHTML = leaderboardHtml;
+            }
+        }
+
+        function restartQuiz() {
+            stopTimer();
+            document.getElementById('resultsScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+
+            currentQuestion = 0;
+            score = 0;
+            answerSelected = false;
+            lockdownMode = true;
+
+            loadQuestion();
+            startTimer();
+        }
+
+        function backToTopics() {
+            stopTimer();
+            document.getElementById('resultsScreen').classList.remove('active');
+            document.getElementById('topicScreen').classList.add('active');
+            lockdownMode = false;
+
+            updateFinalLeaderboard();
+        }
+
+        // initialize leaderboard on page load
+        window.onload = function() {
+            updateFinalLeaderboard();
+        };
+    </script>
+</body>
+</html>
